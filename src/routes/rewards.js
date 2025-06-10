@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getRewards } = require('../controllers/rewards');
+const { getRewardsByAddress } = require('../controllers/rewards');
 
-router.get('/', getRewards);
+// :address makes it a dynamic route parameter
+router.get('/:address', getRewardsByAddress);
 
 module.exports = router;
