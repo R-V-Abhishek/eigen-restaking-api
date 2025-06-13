@@ -28,8 +28,16 @@ async function fetchRestakers() {
       {
         user: "0x6F4F2bF08Aa8C3A84bDF37F637a33A04E96A06Db",
         operator: "0x956F2A99d9E2826eDa30B85e7B9E12D63EFaAb61",
+        amount: 100.0,
         txHash: "0xabc123...dummy",
         blockNumber: 21000000
+      },
+      {
+        user: "0x6F4F2bF08Aa8C3A84bDF37F637a33A04E96A06Db",
+        operator: "0xValidator2",
+        amount: 40.0,
+        txHash: "0xabc456...dummy",
+        blockNumber: 21000001
       }
     ];
 
