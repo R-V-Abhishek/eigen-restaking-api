@@ -1,5 +1,5 @@
 const { request, gql } = require('graphql-request');
-const endpoint = "https://gateway.thegraph.com/api/ce69e7b47e665e5e0bf73c183109d454/subgraphs/id/68g9WSC4QTUJmMpuSbgLNENrcYha4mPmXhWGCoupM7kB";
+const { GRAPHQL_ENDPOINT } = require('../config/constants');
 
 const query = gql`
   {
@@ -17,7 +17,7 @@ const query = gql`
 
 async function fetchRestakersFromChain() {
   try {
-    const data = await request(endpoint, query);
+    const data = await request(GRAPHQL_ENDPOINT, query);
 
     return data.pools.map((p) => ({
       user: p.inputTokens[0]?.id ?? "0x0",
