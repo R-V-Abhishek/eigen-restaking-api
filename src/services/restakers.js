@@ -1,67 +1,35 @@
-const ethers = require('ethers');
-const { RPC_URL } = require('../config/constants');
+const { request, gql } = require('graphql-request');
+const endpoint = "https://gateway.thegraph.com/api/ce69e7b47e665e5e0bf73c183109d454/subgraphs/id/68g9WSC4QTUJmMpuSbgLNENrcYha4mPmXhWGCoupM7kB";
 
-const delegationManagerAddress = ethers.getAddress('0x8e5693140b662f0A56c2bC1f2eCb71B74B36e77F');
-const delegatedEventTopic = ethers.id("Delegated(address,address)");
-
-async function fetchRestakers() {
-  try {
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
-
-    const currentBlock = await provider.getBlockNumber();
-    const fromBlock = 19000000;
-
-    console.log("Scanning logs for Delegated events...");
-    console.log("From block:", fromBlock, "To block:", currentBlock);
-
-    const logs = await provider.getLogs({
-      address: delegationManagerAddress,
-      fromBlock,
-      toBlock: currentBlock,
-      topics: [delegatedEventTopic]
-    });
-
-    console.log(`Found ${logs.length} delegated logs`);
-
-    // TEMP: Return one known restaker for demo purposes
-    return [
-      {
-        user: "0x6F4F2bF08Aa8C3A84bDF37F637a33A04E96A06Db",
-        operator: "0x956F2A99d9E2826eDa30B85e7B9E12D63EFaAb61",
-        amount: 100.0,
-        txHash: "0xabc123...dummy",
-        blockNumber: 21000000
-      },
-      {
-        user: "0x6F4F2bF08Aa8C3A84bDF37F637a33A04E96A06Db",
-        operator: "0xValidator2",
-        amount: 40.0,
-        txHash: "0xabc456...dummy",
-        blockNumber: 21000001
+const query = gql`
+  {
+    pools(first: 20, orderBy: totalValueLockedUSD, orderDirection: desc) {
+      id
+      inputTokens {
+        id
+        name
+        symbol
       }
-    ];
+      totalValueLockedUSD
+    }
+  }
+`;
 
-    // In future, replace with real logs:
-    /*
-    const iface = new ethers.Interface([
-      "event Delegated(address indexed staker, address indexed operator)"
-    ]);
+async function fetchRestakersFromChain() {
+  try {
+    const data = await request(endpoint, query);
 
-    return logs.map(log => {
-      const parsed = iface.parseLog(log);
-      return {
-        user: parsed.args.staker,
-        operator: parsed.args.operator,
-        txHash: log.transactionHash,
-        blockNumber: log.blockNumber
-      };
-    });
-    */
-
+    return data.pools.map((p) => ({
+      user: p.inputTokens[0]?.id ?? "0x0",
+      operator: p.id,
+      amount: Number(p.totalValueLockedUSD),
+      txHash: p.id,
+      blockNumber: 0
+    }));
   } catch (err) {
-    console.error("Error scanning Delegated logs:", err.message);
+    console.error("GraphQL fetch error:", err.message);
     return [];
   }
 }
 
-module.exports = { fetchRestakers };
+module.exports = { fetchRestakersFromChain };

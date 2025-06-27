@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getValidators } = require('../controllers/validators');
+const { getValidators, syncValidators } = require('../controllers/validators');
 
-router.get('/', getValidators);
+router.get('/', getValidators);       // GET /validators
+router.post('/sync', syncValidators); // POST /validators/sync
 
 module.exports = router;

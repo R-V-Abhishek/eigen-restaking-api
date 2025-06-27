@@ -1,32 +1,25 @@
-const { fetchRestakers } = require('./restakers');
+const Restaker = require('../models/Restaker');
 
-async function fetchValidators() {
-  const restakers = await fetchRestakers();
-
+async function calculateValidatorsFromDB() {
+  const restakers = await Restaker.find();
   const operatorMap = new Map();
 
-  for (const restaker of restakers) {
-    const { operator, amount } = restaker;
-
+  for (const { operator, amount } of restakers) {
     if (!operatorMap.has(operator)) {
       operatorMap.set(operator, {
         totalStake: 0,
         slashHistory: []
       });
     }
+    const opData = operatorMap.get(operator);
+    opData.totalStake += amount || 0;
 
-    const data = operatorMap.get(operator);
-    data.totalStake += amount || 0;
-
-    // Add a fake slash event if operator matches some dummy value
-    if (operator === '0x956F2A99d9E2826eDa30B85e7B9E12D63EFaAb61') {
-      data.slashHistory.push({
-        timestamp: 1717500000, // example UNIX timestamp
-        amount: 10
-      });
+    // Simulated slashing (optional)
+    if (operator.toLowerCase().includes('dead')) {
+      opData.slashHistory.push({ timestamp: Date.now(), amount: 5 });
     }
 
-    operatorMap.set(operator, data);
+    operatorMap.set(operator, opData);
   }
 
   return Array.from(operatorMap.entries()).map(([operator, data]) => ({
@@ -37,4 +30,4 @@ async function fetchValidators() {
   }));
 }
 
-module.exports = { fetchValidators };
+module.exports = { calculateValidatorsFromDB };

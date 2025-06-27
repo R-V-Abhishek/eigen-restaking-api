@@ -1,21 +1,17 @@
-const { fetchRestakers } = require('./restakers');
+const Restaker = require('../models/Restaker');
 
-async function fetchRewardsByAddress(address) {
-  if (!address) return { error: "Address required" };
+async function calculateRewardsForUser(address) {
+  const restakers = await Restaker.find({ user: new RegExp(`^${address}$`, 'i') });
 
-  const allRestakers = await fetchRestakers();
-
-  // Filter by user address (case-insensitive)
-  const userRestakes = allRestakers.filter(r =>
-    r.user.toLowerCase() === address.toLowerCase()
-  );
-
-  const rewardsByValidator = userRestakes.map(({ operator, amount }) => {
-    const reward = amount * 0.05;  // Simulate 5% reward
-    return { operator, reward: Number(reward.toFixed(4)) };
+  const rewardsByValidator = restakers.map(({ operator, amount }) => {
+    const reward = amount * 0.05;
+    return {
+      operator,
+      reward: Number(reward.toFixed(4))
+    };
   });
 
-  const totalRewards = rewardsByValidator.reduce((sum, r) => sum + r.reward, 0);
+  const totalRewards = rewardsByValidator.reduce((acc, r) => acc + r.reward, 0);
 
   return {
     address,
@@ -24,4 +20,5 @@ async function fetchRewardsByAddress(address) {
   };
 }
 
-module.exports = { fetchRewardsByAddress };
+module.exports = { calculateRewardsForUser };
+// This service calculates rewards for a specific user based on their restaking data.

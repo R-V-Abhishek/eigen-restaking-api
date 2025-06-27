@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getRestakers } = require('../controllers/restakers');
+const { getRestakers, syncRestakers } = require('../controllers/restakers');
 
-router.get('/', getRestakers);
+router.get('/', getRestakers);       // GET /restakers
+router.post('/sync', syncRestakers); // POST /restakers/sync
 
 module.exports = router;

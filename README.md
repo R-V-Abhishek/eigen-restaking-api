@@ -1,99 +1,92 @@
-# EigenLayer Restaking API
+# Eigen Restaking API (Proxy)
 
-This is a backend API service built with **Node.js + Express**, simulating and exposing restaking data on the **EigenLayer** protocol, including:
+This project is a Node.js backend API that simulates EigenLayer restaking data using real blockchain data pulled via The Graph (GraphQL) and stores it in MongoDB.
 
-- List of restakers and their delegation targets
-- Validator/operator metadata (total stake, status, etc.)
-- Reward breakdown per user and per operator
+## 🧠 What It Does
 
-> 🔧 Uses mock data for now; can be extended to fetch real on-chain events or integrate with testnet.
-
----
-
-## Features
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /restakers` | Returns all user delegations to operators |
-| `GET /validators` | Aggregates total stake per validator |
-| `GET /rewards/:address` | Calculates reward breakdown for a user (5% mock reward logic) |
+* Fetches and syncs **real-time restaker-like data** (from subgraphs like Lido or other DeFi pools)
+* Stores `restakers`, `validators`, and `rewards` into MongoDB
+* Exposes REST API endpoints to query the synced data
+* Uses a proxy data source that mimics EigenLayer's behavior
 
 ---
 
-## Technologies Used
+## 📦 Tech Stack
 
-- Node.js + Express
-- Ethers.js for on-chain querying
-- GraphQL (planned integration)
-- REST API architecture
+* **Node.js** + **Express**
+* **MongoDB Atlas**
+* **The Graph** (GraphQL subgraphs)
+* **graphql-request**
+* **Ethers.js** (optional for on-chain fallback)
 
 ---
 
-## Getting Started
+## 🛠 Project Structure
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/R-V-Abhishek/eigen-restaking-api.git
-cd eigen-restaking-api
 ```
-### 2. Install dependencies
+src/
+│
+├── controllers/       # Handles API logic
+├── models/            # Mongoose schemas for Restaker, Validator, Reward
+├── routes/            # API route files
+├── services/          # GraphQL fetchers and logic
+├── config/            # Constants like RPC and Mongo URI
+└── index.js           # Main server file
+```
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Route               | Description                    |
+| ------ | ------------------- | ------------------------------ |
+| POST   | `/restakers/sync`   | Fetch and store restakers      |
+| GET    | `/restakers`        | List all restakers             |
+| POST   | `/validators/sync`  | Calculate and store validators |
+| GET    | `/validators`       | List all validators            |
+| GET    | `/rewards/:address` | User reward info               |
+| POST   | `/sync-all`         | Sync everything in one go      |
+
+---
+
+## ⚙️ Setup
+
+### 1. Clone and install
+
 ```bash
+git clone https://github.com/R-V-Abhishek/eigen-restaking-api
+cd eigen-restaking-api
 npm install
 ```
 
-### 3. Add .env
+### 2. Create `.env`
 
-# .env
-RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY
+```env
+MONGO_URI=your_mongodb_uri_here
+```
 
-### 4. Run the server
+### 3. Run the project
+
 ```bash
 npm start
 ```
 
-    Example API Calls
+Server will run at `http://localhost:3000`.
 
-    GET /restakers
-    Returns:
+---
 
-[
-  {
-    "user": "0xabc...",
-    "operator": "0xdef...",
-    "amount": 100
-  }
-]
+## 📈 Data Source
 
-    GET /validators
-    Returns:
+We use a **public GraphQL subgraph** (e.g., Lido pools or Messari pool analytics) to simulate restaking behavior without requiring an EigenLayer-specific subgraph or wallet.
 
-[
-  {
-    "operator": "0xdef...",
-    "totalStake": 100
-  }
-]
+---
 
-    GET /rewards/0xabc...
-    Returns:
+## ✅ Status
 
-{
-  "address": "0xabc...",
-  "totalRewards": 5,
-  "rewardsByValidator": [...]
-}
+All core features implemented and working. Ready for demo, testing, and extension.
 
-### Future Extensions
+---
 
-    Connect to live Delegated events
+## 👨‍💼 Author
 
-    Use real staking amounts per operator
-
-    Add slash history via on-chain Slashed logs
-
-    Add persistent storage (MongoDB/Postgres)
-
-### Author
-
-R V Abhishek – @R-V-Abhishek
-
+Made with ❤️ by \R V Abhishek
