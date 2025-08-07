@@ -3,17 +3,13 @@ const { GRAPHQL_ENDPOINT } = require('../config/constants');
 
 const query = gql`
   {
-    pools(first: 20, orderBy: totalValueLockedUSD, orderDirection: desc) {
-      id
-      inputTokens {
-        id
-        name
-        symbol
-      }
-      totalValueLockedUSD
+    delegations(first: 10, orderBy: timestamp, orderDirection: desc) {
+      staker
+      operator
+      shares
+      timestamp
     }
-  }
-`;
+  }`;
 
 async function fetchRestakersFromChain() {
   try {
